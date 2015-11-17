@@ -8,7 +8,7 @@ namespace tictactoy.TicTacToy
 {
     public class Jogador
     {
+        public string Nome { get; set; }
         public Simbolo Simbolo { get; set; }
-        public int Numero { get; set; } 
     }
 }

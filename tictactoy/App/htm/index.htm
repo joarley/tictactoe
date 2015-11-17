@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Jogo da Velha</title>
+
+    <link href="../../Content/bootstrap.css" rel="stylesheet" />
+    <script src="../../Scripts/jquery-1.9.1.js"></script>
+    <script src="../../Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="../../Scripts/bootstrap.js"></script>
+    <script src="../js/snap.svg.js"></script>
+    <script src="../js/jquery.cookie.js"></script>
+    <script src="/signalr/hubs"></script>
+</head>
+<body>
+    <center>
+        <h4 id="status">Joarley x Jogador 2 <br> (Turno Jogador 2)</h4>
+        <br />
+        <button id="novoJogo" type="button" class="btn btn-primary" data-toggle="modal" data-target="#novoJogoModal">Novo Jogo</button>
+        <button id="sairJogo" type="button" class="btn btn-danger">Sair do Jogo</button>
+        <button id="rank" type="button" class="btn btn-primary" data-toggle="modal" data-target="#rankModal">Rank</button>
+        <br><br>
+        <div id="svg"></div>
+    </center>
+
+    <div class="modal fade" id="rankModal">
+        <div class="modal-dialog" style="width:80%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Rank</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Jogos Ganhos</th>
+                                <th>Jogos Empatados</th>
+                                <th>Jogos Perdidos</th>
+                                <th>Pontos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankTable">
+                            <tr>
+                                <td>1</td>
+                                <td>Joarley</td>
+                                <td>100</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>300</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="novoJogoModal">
+        <div class="modal-dialog" style="width:900px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Iniciar Jogo</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="nomeInput">Nome Jogador</label>
+                            <input type="text" class="form-control" id="nomeInput">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="iniciarNovoJogo" type="button" class="btn btn-default" data-dismiss="modal">Novo Jogo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>

@@ -11,7 +11,8 @@ namespace tictactoy.TicTacToy
         TurnoJogador1,
         TurnoJogador2,
         FinalizadoVitoriaJogador1,
-        FinalizadoVitoriaJogador2
-        FinalizadoEmpate
+        FinalizadoVitoriaJogador2,
+        FinalizadoEmpate,
+        Cancelado
     }
 }

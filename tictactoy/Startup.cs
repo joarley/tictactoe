@@ -1,4 +1,5 @@
-﻿using Owin;
+﻿using Microsoft.AspNet.SignalR;
+using Owin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
