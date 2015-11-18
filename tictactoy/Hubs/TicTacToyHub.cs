@@ -3,7 +3,9 @@ using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using tictactoy.TicTacToy;
@@ -56,10 +58,23 @@ namespace tictactoy.Hubs
             EnviarStatusJogo(jogo);
         }
 
+        public string AssemblyDirectory
+        {
+            get
+            {
+                string codeBase = this.GetType().Assembly.CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
+            }
+        }
+
+        public string Database { get { return Path.Combine(AssemblyDirectory, "data.db"); } }
+
         public IEnumerable<Rank> BuscarRank()
         {
             var rank = new Dictionary<string, Rank>();
-            using (var db = new LiteDatabase(@"data.db"))
+            using (var db = new LiteDatabase(Database))
             {
                 var col = db.GetCollection<Jogo>("jogos");
                 var todosJogos = col.FindAll();
@@ -166,7 +181,7 @@ namespace tictactoy.Hubs
 
         private Jogador BuscaJogadorDaConexao(string connectionId)
         {
-            var jogador= jogadoresConnectionId.FirstOrDefault(x => x.Value == connectionId);
+            var jogador = jogadoresConnectionId.FirstOrDefault(x => x.Value == connectionId);
             return jogador.Key;
         }
 
@@ -197,12 +212,12 @@ namespace tictactoy.Hubs
             if (jogador == null)
                 return null;
 
-            return jogos.FirstOrDefault(x => x.Jogador1 == jogador|| x.Jogador2 == jogador);
+            return jogos.FirstOrDefault(x => x.Jogador1 == jogador || x.Jogador2 == jogador);
         }
 
         private void SalvarRank(Jogo jogo)
         {
-            using (var db = new LiteDatabase(@"data.db"))
+            using (var db = new LiteDatabase(Database))
             {
                 var col = db.GetCollection<Jogo>("jogos");
                 col.Insert(jogo);
