@@ -51,6 +51,12 @@ Snap.load("/App/img/tabuleiro.svg", function (f) {
             return;
         }
 
+        if (jogo.Estado == 5) {
+            $("#status").text("Jogo Empatado");
+            jogo = null;
+            return;
+        }
+
         if (jogo.Jogador2 == null) {
             $("#status").text("Aguardando oponente");
             return;
