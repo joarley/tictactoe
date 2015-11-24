@@ -16,6 +16,7 @@ namespace tictactoy.Hubs
     {
         static Dictionary<Jogador, string> jogadoresConnectionId = new Dictionary<Jogador, string>();
         static List<Jogo> jogos = new List<Jogo>();
+        static string Database { get { return Path.Combine(AssemblyDirectory, "data.db"); } }
 
         public override Task OnReconnected()
         {
@@ -31,6 +32,44 @@ namespace tictactoy.Hubs
         {
             SairJogo();
             return base.OnDisconnected(stopCalled);
+        }
+
+        public void NovoJogo(string nomeJogador)
+        {
+            SairJogo();
+
+            lock (jogos)
+            {
+                var jogo = jogos.FirstOrDefault(x => x.Jogador2 == null);
+                if (jogo == null)
+                {
+                    jogo = new Jogo()
+                    {
+                        Estado = EstadoJogo.NaoIniciado,
+                        Jogador1 = new Jogador()
+                        {
+                            Nome = nomeJogador,
+                            Simbolo = Simbolo.Xis
+                        }
+                    };
+
+                    jogos.Add(jogo);
+                    jogadoresConnectionId[jogo.Jogador1] = Context.ConnectionId;
+                }
+                else
+                {
+                    jogo.Jogador2 = new Jogador()
+                    {
+                        Nome = nomeJogador,
+                        Simbolo = Simbolo.Circulo
+                    };
+                    jogo.Estado = EstadoJogo.TurnoJogador1;
+                    jogadoresConnectionId[jogo.Jogador2] = Context.ConnectionId;
+
+                }
+
+                EnviarStatusJogo(jogo);
+            }
         }
 
         public void Jogar(int jogada)
@@ -64,19 +103,6 @@ namespace tictactoy.Hubs
 
             EnviarStatusJogo(jogo);
         }
-
-        public string AssemblyDirectory
-        {
-            get
-            {
-                string codeBase = this.GetType().Assembly.CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
-                string path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
-            }
-        }
-
-        public string Database { get { return Path.Combine(AssemblyDirectory, "data.db"); } }
 
         public IEnumerable<Rank> BuscarRank()
         {
@@ -132,44 +158,6 @@ namespace tictactoy.Hubs
                 ThenByDescending(x => x.Empatados);
         }
 
-        public void NovoJogo(string nomeJogador)
-        {
-            SairJogo();
-
-            lock (jogos)
-            {
-                var jogo = jogos.FirstOrDefault(x => x.Jogador2 == null);
-                if (jogo == null)
-                {
-                    jogo = new Jogo()
-                    {
-                        Estado = EstadoJogo.NaoIniciado,
-                        Jogador1 = new Jogador()
-                        {
-                            Nome = nomeJogador,
-                            Simbolo = Simbolo.Xis
-                        }
-                    };
-
-                    jogos.Add(jogo);
-                    jogadoresConnectionId[jogo.Jogador1] = Context.ConnectionId;
-                }
-                else
-                {
-                    jogo.Jogador2 = new Jogador()
-                    {
-                        Nome = nomeJogador,
-                        Simbolo = Simbolo.Circulo
-                    };
-                    jogo.Estado = EstadoJogo.TurnoJogador1;
-                    jogadoresConnectionId[jogo.Jogador2] = Context.ConnectionId;
-
-                }
-
-                EnviarStatusJogo(jogo);
-            }
-        }
-
         public void SairJogo()
         {
             lock (jogos)
@@ -186,6 +174,8 @@ namespace tictactoy.Hubs
             }
         }
 
+        #region private
+
         private Jogador BuscaJogadorDaConexao(string connectionId)
         {
             var jogador = jogadoresConnectionId.FirstOrDefault(x => x.Value == connectionId);
@@ -194,18 +184,21 @@ namespace tictactoy.Hubs
 
         private void EnviarStatusJogo(Jogo jogo)
         {
-            var connectionIdJogador1 = BuscarIdConexaoJogador(jogo.Jogador1);
-
-
-            var conexaoJogador1 = this.Clients.Client(connectionIdJogador1);
-
-            conexaoJogador1.AtualizarJogo(jogo);
-            if (jogo.Jogador2 != null)
+            try
             {
-                var connectionIdJogador2 = BuscarIdConexaoJogador(jogo.Jogador2);
-                var conexaoJogador2 = this.Clients.Client(connectionIdJogador2);
-                conexaoJogador2.AtualizarJogo(jogo);
+                var connectionIdJogador1 = BuscarIdConexaoJogador(jogo.Jogador1);
+
+                var conexaoJogador1 = this.Clients.Client(connectionIdJogador1);
+
+                conexaoJogador1.AtualizarJogo(jogo);
+                if (jogo.Jogador2 != null)
+                {
+                    var connectionIdJogador2 = BuscarIdConexaoJogador(jogo.Jogador2);
+                    var conexaoJogador2 = this.Clients.Client(connectionIdJogador2);
+                    conexaoJogador2.AtualizarJogo(jogo);
+                }
             }
+            catch (Exception) { }
         }
 
         private string BuscarIdConexaoJogador(Jogador jogador)
@@ -230,5 +223,17 @@ namespace tictactoy.Hubs
                 col.Insert(jogo);
             }
         }
+
+        private static string AssemblyDirectory
+        {
+            get
+            {
+                string codeBase = this.GetType().Assembly.CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
+            }
+        }
+        #endregion
     }
 }
