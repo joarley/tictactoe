@@ -53,7 +53,11 @@ namespace tictactoy.Hubs
             jogo.Jogar(jogador, jogada);
 
             if (jogo.Finalizado)
-                SalvarRank(jogo);
+                try
+                {
+                    SalvarRank(jogo);
+                }
+                catch (Exception) { }
 
             EnviarStatusJogo(jogo);
         }
