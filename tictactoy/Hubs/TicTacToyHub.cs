@@ -55,7 +55,10 @@ namespace tictactoy.Hubs
             if (jogo.Finalizado)
                 try
                 {
-                    SalvarRank(jogo);
+                    Task.Run(() =>
+                    {
+                        SalvarRank(jogo);
+                    });
                 }
                 catch (Exception) { }
 
